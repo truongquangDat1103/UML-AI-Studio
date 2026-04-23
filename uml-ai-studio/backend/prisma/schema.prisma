@@ -1,0 +1,110 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum Status {
+  ACTIVE
+  SUSPENDED
+}
+
+enum DiagramType {
+  USECASE
+  CLASS
+}
+
+model User {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  role         Role           @default(USER)
+  status       Status         @default(ACTIVE)
+  dailyQuota   Int            @default(20)
+  quotaUsed    Int            @default(0)
+  quotaResetAt DateTime       @default(now())
+  createdAt    DateTime       @default(now())
+  lastLoginAt  DateTime?
+  projects     Project[]
+  sessions     Session[]
+  auditLogs    AuditLog[]
+  notifications Notification[]
+}
+
+model Project {
+  id          String      @id @default(cuid())
+  userId      String
+  title       String
+  description String?
+  diagramType DiagramType
+  mermaidCode String      @db.Text
+  explanation String      @db.Text
+  messages    Json
+  tags        String[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Template {
+  id            String      @id @default(cuid())
+  title         String
+  description   String
+  diagramType   DiagramType
+  mermaidCode   String      @db.Text
+  promptExample String      @db.Text
+  createdBy     String
+  createdAt     DateTime    @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  detail    String
+  ip        String?
+  timestamp DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AIConfig {
+  id                  String @id @default("singleton")
+  model               String @default("claude-sonnet-4-20250514")
+  apiKey              String?
+  systemPromptUsecase String @db.Text
+  systemPromptClass   String @db.Text
+  temperature         Float  @default(0.7)
+  maxTokens           Int    @default(4096)
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  messages  Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "./ERD.svg"
+}

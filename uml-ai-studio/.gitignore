@@ -1,0 +1,47 @@
+# ===========================
+# Dependencies
+# ===========================
+node_modules/
+
+# ===========================
+# Build outputs
+# ===========================
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# ===========================
+# Environment variables (SENSITIVE - never push!)
+# ===========================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# ===========================
+# Logs
+# ===========================
+*.log
+logs/
+build_err*.log
+ts_err.log
+
+# ===========================
+# OS files
+# ===========================
+.DS_Store
+Thumbs.db
+
+# ===========================
+# Cache
+# ===========================
+.cache/
+.turbo/
+coverage/
+
+# ===========================
+# Prisma
+# ===========================
+prisma/*.db
+prisma/*.db-journal

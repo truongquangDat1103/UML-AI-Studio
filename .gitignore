@@ -1,0 +1,123 @@
+# ===========================
+# Dependencies
+# ===========================
+node_modules/
+.pnp
+.pnp.js
+
+# ===========================
+# Build outputs
+# ===========================
+dist/
+dist-ssr/
+build/
+out/
+*.tsbuildinfo
+
+# ===========================
+# Environment variables (SENSITIVE - never push!)
+# ===========================
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# ===========================
+# Logs
+# ===========================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# ===========================
+# OS files
+# ===========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===========================
+# IDE / Editor
+# ===========================
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+*~
+
+# ===========================
+# Package manager locks (keep only one)
+# ===========================
+# Uncomment if you use yarn/pnpm exclusively:
+# package-lock.json
+
+# ===========================
+# Testing / Coverage
+# ===========================
+coverage/
+.nyc_output/
+
+# ===========================
+# Cache / Temp
+# ===========================
+.cache/
+.turbo/
+.parcel-cache/
+*.local
+tmp/
+temp/
+
+# ===========================
+# Zip / Archives / Tool files (không cần push)
+# ===========================
+*.zip
+*.rar
+*.tar.gz
+*.7z
+*.make
+*.skill
+
+# ===========================
+# Tài liệu nội bộ / ghi chú (không cần push)
+# ===========================
+database_explained.md
+project_context.md
+PROMPT_AI_UML_SYSTEM.md
+Untitled.make
+
+# ===========================
+# Thư mục tool / skill nội bộ
+# ===========================
+skill-extracted/
+ui-ux-skill/
+
+# ===========================
+# Python (nếu có backend Python)
+# ===========================
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# ===========================
+# Prisma
+# ===========================
+prisma/*.db
+prisma/*.db-journal
+
+# ===========================
+# Misc build logs (frontend)
+# ===========================
+build_err*.log
+ts_err.log

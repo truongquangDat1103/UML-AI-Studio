@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: uml_postgres
+    environment:
+      POSTGRES_USER: umluser
+      POSTGRES_PASSWORD: umlpass
+      POSTGRES_DB: umlstudio
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
