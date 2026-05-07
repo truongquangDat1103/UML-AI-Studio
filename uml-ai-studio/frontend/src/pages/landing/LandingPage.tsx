@@ -163,18 +163,7 @@ export default function LandingPage() {
             }}>
               Start Creating Free <ArrowRight size={16} />
             </Link>
-            <Link to="/login" style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8,
-              backgroundColor: 'white', color: '#111827',
-              fontWeight: 600, fontSize: 15,
-              padding: '14px 28px', borderRadius: 9999,
-              textDecoration: 'none',
-              border: '1.5px solid #E5E7EB',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-              transition: 'all 0.2s',
-            }}>
-              View Demo
-            </Link>
+
           </motion.div>
         </div>
 

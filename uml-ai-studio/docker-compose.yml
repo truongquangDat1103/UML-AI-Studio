@@ -12,5 +12,20 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  llm-service:
+    build:
+      context: ./llm-service
+      dockerfile: Dockerfile
+    container_name: uml_llm_service
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./llm-service/.env
+    volumes:
+      - ./llm-service/vector_db:/app/vector_db
+      - ./llm-service/models:/app/models
+      - ./llm-service/logs:/app/logs
+    restart: unless-stopped
+
 volumes:
   postgres_data:

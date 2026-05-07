@@ -6,9 +6,10 @@
     "backend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\"",
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\" \"npm run dev:llm\"",
     "dev:backend": "npm run dev -w backend",
     "dev:frontend": "npm run dev -w frontend",
+    "dev:llm": "cd llm-service && python server.py",
     "build": "npm run build -w backend && npm run build -w frontend",
     "db:migrate": "npm run db:migrate -w backend",
     "db:seed": "npm run db:seed -w backend",

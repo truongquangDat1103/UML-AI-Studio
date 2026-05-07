@@ -12,6 +12,7 @@ interface DiagramState {
     projectTitle: string
     diagramType: DiagramType
     mermaidCode: string
+    plantUmlCode: string
     explanation: string
     suggestions: string[]
     messages: AIMessage[]
@@ -22,6 +23,7 @@ interface DiagramState {
 
     setDiagramType: (type: DiagramType) => void
     setMermaidCode: (code: string) => void
+    setPlantUmlCode: (code: string) => void
     setExplanation: (text: string) => void
     setSuggestions: (items: string[]) => void
     addMessage: (msg: AIMessage) => void
@@ -43,6 +45,7 @@ export const useDiagramStore = create<DiagramState>((set) => ({
     projectTitle: 'Untitled',
     diagramType: 'usecase',
     mermaidCode: '',
+    plantUmlCode: '',
     explanation: '',
     suggestions: [],
     messages: [],
@@ -53,6 +56,7 @@ export const useDiagramStore = create<DiagramState>((set) => ({
 
     setDiagramType: (type) => set({ diagramType: type }),
     setMermaidCode: (code) => set({ mermaidCode: code }),
+    setPlantUmlCode: (code) => set({ plantUmlCode: code }),
     setExplanation: (text) => set({ explanation: text }),
     setSuggestions: (items) => set({ suggestions: items }),
     addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
@@ -63,7 +67,7 @@ export const useDiagramStore = create<DiagramState>((set) => ({
     setProjectTitle: (title) => set({ projectTitle: title }),
     setZoom: (level) => set({ zoomLevel: Math.max(0.25, Math.min(3, level)) }),
     resetSession: () => set({
-        projectId: null, projectTitle: 'Untitled', mermaidCode: '', explanation: '',
+        projectId: null, projectTitle: 'Untitled', mermaidCode: '', plantUmlCode: '', explanation: '',
         suggestions: [], messages: [], isGenerating: false, streamingText: '', tokenCount: 0,
     }),
     loadProject: (data) => set({

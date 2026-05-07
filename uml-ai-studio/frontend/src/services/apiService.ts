@@ -10,6 +10,7 @@ interface GenerateParams {
 
 interface AIResult {
     mermaidCode: string
+    plantUmlCode?: string
     explanation: string
     suggestions: string[]
 }

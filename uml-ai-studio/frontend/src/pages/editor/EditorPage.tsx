@@ -5,6 +5,7 @@ import { Sparkles, ZoomIn, ZoomOut, Maximize2, Copy, Save, Trash2, Lightbulb, Se
 import { useDiagramStore } from '@/stores/diagramStore'
 import { generateDiagramAPI, projectsAPI } from '@/services/apiService'
 import MermaidRenderer from '@/components/diagrams/MermaidRenderer'
+import PlantUMLRenderer from '@/components/diagrams/PlantUMLRenderer'
 import toast from 'react-hot-toast'
 import type { DiagramType } from '@/types'
 
@@ -17,6 +18,7 @@ export default function EditorPage() {
 
   const {
     diagramType, setDiagramType, mermaidCode, setMermaidCode,
+    plantUmlCode, setPlantUmlCode,
     explanation, setExplanation, suggestions, setSuggestions,
     messages, addMessage, isGenerating, setIsGenerating,
     streamingText, setStreamingText, appendStreamingText,
@@ -48,7 +50,9 @@ export default function EditorPage() {
         { input: text, diagramType: diagramType.toUpperCase() as 'USECASE' | 'CLASS', conversationHistory: messages.map(m => ({ role: m.role, content: m.content })) },
         (chunk) => appendStreamingText(chunk),
       )
-      setMermaidCode(result.mermaidCode); setExplanation(result.explanation)
+      setMermaidCode(result.mermaidCode)
+      if (result.plantUmlCode) setPlantUmlCode(result.plantUmlCode)
+      setExplanation(result.explanation)
       setSuggestions(result.suggestions || [])
       addMessage({ role: 'assistant', content: result.explanation, timestamp: new Date().toISOString() })
       setStreamingText('')
@@ -246,11 +250,15 @@ export default function EditorPage() {
 
         {/* Canvas */}
         <div style={{
-          flex: 1, overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flex: 1, overflow: 'auto',
           backgroundImage: 'radial-gradient(#E5E7EB 1px, transparent 1px)', backgroundSize: '20px 20px',
           backgroundColor: '#F9FAFB',
+          display: 'flex', flexDirection: 'column',
+          alignItems: mermaidCode ? 'stretch' : 'center',
+          justifyContent: mermaidCode ? 'flex-start' : 'center',
+          padding: mermaidCode ? 16 : 0,
         }}>
-          <div style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center', transition: 'transform 0.2s' }}>
+          <div style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', transition: 'transform 0.2s', width: '100%' }}>
             {isGenerating && !mermaidCode ? (
               <div style={{ textAlign: 'center' }}>
                 <div style={{ width: 64, height: 64, borderRadius: 20, backgroundColor: '#EAE8F5', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
@@ -259,8 +267,15 @@ export default function EditorPage() {
                 <p style={{ fontSize: 14, color: '#6B7280', fontWeight: 500, fontFamily: font }}>AI đang thiết kế sơ đồ...</p>
               </div>
             ) : mermaidCode ? (
-              <div style={{ backgroundColor: 'white', padding: 24, borderRadius: 20, boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '1px solid #E5E7EB', minWidth: 260 }}>
-                <MermaidRenderer code={mermaidCode} />
+              <div style={{
+                backgroundColor: 'white', padding: 24, borderRadius: 20,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.06)', border: '1px solid #E5E7EB',
+                width: '100%', boxSizing: 'border-box' as const,
+              }}>
+                {diagramType === 'usecase' && plantUmlCode
+                  ? <PlantUMLRenderer code={plantUmlCode} />
+                  : <MermaidRenderer code={mermaidCode} />
+                }
               </div>
             ) : (
               <div style={{ textAlign: 'center' }}>

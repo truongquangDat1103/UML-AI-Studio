@@ -142,8 +142,7 @@ export default function LoginPage() {
           </motion.div>
         </div>
 
-        {/* Bottom */}
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 12 }}>© 2026 UML AI Studio. All rights reserved.</p>
+
       </div>
 
       {/* ===== RIGHT PANEL — Form ===== */}
@@ -182,7 +181,7 @@ export default function LoginPage() {
               fontSize: 28, fontWeight: 800, color: '#111827',
               letterSpacing: '-0.6px', marginBottom: 6,
             }}>
-              Chào mừng trở lại 👋
+              Chào mừng trở lại
             </h2>
             <p style={{ color: '#6B7280', fontSize: 15 }}>
               Đăng nhập để tiếp tục tạo sơ đồ UML với AI
