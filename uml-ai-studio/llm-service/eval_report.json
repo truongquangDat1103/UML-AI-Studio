@@ -1,0 +1,274 @@
+[
+  {
+    "id": "0",
+    "requirement": "Create a usecase diagram for this system. Healthcare service has huge demand the",
+    "f1": 0.917,
+    "status": "PASS",
+    "ai_output": [
+      "ServiceProvider --> UC_Use_Resources",
+      "User --> UC_Register",
+      "User --> UC_Login",
+      "User --> UC_Use_Facilities",
+      "User --> UC_Logout",
+      "User --> UC_Do_Payment",
+      "User --> UC_Use_Resources",
+      "User --> UC_Access_News_And_Experts",
+      "User --> UC_Get_Drugs_And_Supplements",
+      "User --> UC_Access_Health_A_Z",
+      "User --> UC_Access_Finance",
+      "UC_Give_Feedback --> UC_Do_Payment"
+    ],
+    "ground_truth": [
+      "ServiceProvider --> UC_Use_Resources",
+      "User --> UC_Register",
+      "User --> UC_Login",
+      "User --> UC_Use_Facilities",
+      "User --> UC_Logout",
+      "User --> UC_Do_Payment",
+      "User --> UC_Use_Resources",
+      "User --> UC_Access_News_And_Experts",
+      "User --> UC_Get_Drugs_And_Supplements",
+      "User --> UC_Access_Health_A_Z",
+      "User --> UC_Access_Finance",
+      "UC_Give_Feedback ..> UC_Do_Payment : <<extend>>"
+    ]
+  },
+  {
+    "id": "1",
+    "requirement": "Create a usecase diagram for this system. The Online Examination System is a web",
+    "f1": 0.833,
+    "status": "PASS",
+    "ai_output": [
+      "Student --> UC_Register",
+      "Student --> UC_Take_Exam",
+      "Student --> UC_Generate_Result",
+      "Student --> UC_Analyze_Exam",
+      "Teacher --> UC_Create_Exam",
+      "UC_Generate_Result --> UC_Take_Exam"
+    ],
+    "ground_truth": [
+      "Student --> UC_Register",
+      "Student --> UC_Take_Exam",
+      "Student --> UC_Generate_Result",
+      "Student --> UC_Analyze_Exam",
+      "Teacher --> UC_Create_Exam",
+      "UC_Generate_Result ..> UC_Take_Exam : <<extend>>"
+    ]
+  },
+  {
+    "id": "2",
+    "requirement": "Create a usecase diagram for this system. The Online Voting System is a web-base",
+    "f1": 0.833,
+    "status": "PASS",
+    "ai_output": [
+      "Citizen --> UC_Register_as_Voter",
+      "Citizen --> UC_Cast_Vote",
+      "Citizen --> UC_Generate_Result",
+      "Citizen --> UC_Analyze_Votes",
+      "Candidate --> UC_Register_as_Candidate",
+      "UC_Generate_Result --> UC_Cast_Vote"
+    ],
+    "ground_truth": [
+      "Citizen --> UC_Register_as_Voter",
+      "Citizen --> UC_Cast_Vote",
+      "Citizen --> UC_Generate_Result",
+      "Citizen --> UC_Analyze_Votes",
+      "Candidate --> UC_Register_as_Candidate",
+      "UC_Generate_Result ..> UC_Cast_Vote : <<extend>>"
+    ]
+  },
+  {
+    "id": "3",
+    "requirement": "Give me a use case diagram for this E-Ticketing System for Buses. In this case s",
+    "f1": 0.143,
+    "status": "FAIL",
+    "ai_output": [
+      "Customer --> UC_Make_Reservation",
+      "Customer --> UC_Check_Availability_Types",
+      "Customer --> UC_Check_Departure_Times",
+      "Customer --> UC_Do_Payment",
+      "Customer --> UC_Cancel_Reservation",
+      "Admin --> UC_Manage_Payments",
+      "Admin --> UC_Manage_Routes",
+      "Admin --> UC_Manage_Vehicles",
+      "UC_Make_Reservation --> UC_Check_Availability_Types",
+      "UC_Make_Reservation --> UC_Check_Departure_Times",
+      "UC_Make_Reservation --> UC_Do_Payment",
+      "UC_Cancel_Reservation --> UC_Do_Payment"
+    ],
+    "ground_truth": [
+      "Customer --> UC_Registration",
+      "Customer --> UC_Do_Payment",
+      "Customer --> UC_Check_Status",
+      "Customer --> UC_Manage_Account",
+      "Customer --> UC_Make_Reservation",
+      "Manager --> UC_Manage_Transactions",
+      "Manager --> UC_Update_Routes",
+      "Manager --> UC_Update_Bus_Schedules",
+      "Manager --> UC_Update_Vehicle_Records",
+      "Manager --> UC_Generate_Reports",
+      "Admin --> UC_Update_Bus_Schedules",
+      "Admin --> UC_Update_User_Credentials",
+      "Admin --> UC_Delete_Account",
+      "UC_Cancellation ..> UC_Do_Payment : <<extend>>",
+      "UC_Delete_Account ..> UC_Manage_Account : <<extend>>",
+      "UC_Edit_Profile ..> UC_Manage_Account : <<extend>>"
+    ]
+  },
+  {
+    "id": "4",
+    "requirement": "The Weather Monitoring System allows people to directly check the weather status",
+    "f1": 0.75,
+    "status": "PASS",
+    "ai_output": [
+      "User --> UC_Check_Weather_Status",
+      "User --> UC_Live_Update",
+      "User --> UC_Get_Alerts",
+      "User --> UC_Generate_Graphical_Representation",
+      "User --> UC_Predict_Future_Weather",
+      "User --> UC_Weekly_Analysis",
+      "UC_Live_Update --> UC_Check_Weather_Status",
+      "UC_Predict_Future_Weather --> UC_Generate_Graphical_Representation"
+    ],
+    "ground_truth": [
+      "User --> UC_Check_Weather_Status",
+      "User --> UC_Live_Update",
+      "User --> UC_Get_Alerts",
+      "User --> UC_Generate_Graphical_Representation",
+      "User --> UC_Predict_Future_Weather",
+      "User --> UC_Weekly_Analysis",
+      "UC_Live_Update ..> UC_Check_Weather_Status : <<extend>>",
+      "UC_Predict_Future_Weather ..> UC_Generate_Graphical_Representation : <<extend>>"
+    ]
+  },
+  {
+    "id": "5",
+    "requirement": "The Online Shopping System is a web-based application that allows customers to p",
+    "f1": 0.875,
+    "status": "PASS",
+    "ai_output": [
+      "Customer --> UC_Register",
+      "Customer --> UC_View_Products",
+      "Customer --> UC_Add_To_Cart",
+      "Customer --> UC_Make_Payment",
+      "Customer --> UC_View_Order_History",
+      "Customer --> UC_Contact_Support",
+      "Customer Support --> UC_Provide_Support",
+      "UC_Contact_Support --> UC_Provide_Support"
+    ],
+    "ground_truth": [
+      "Customer --> UC_Register",
+      "Customer --> UC_View_Products",
+      "Customer --> UC_Add_To_Cart",
+      "Customer --> UC_Make_Payment",
+      "Customer --> UC_View_Order_History",
+      "Customer --> UC_Contact_Support",
+      "Customer Support --> UC_Provide_Support",
+      "UC_Contact_Support ..> UC_Provide_Support : <<include>>"
+    ]
+  },
+  {
+    "id": "6",
+    "requirement": "The Library Management System is a software application that helps in maintainin",
+    "f1": 0.857,
+    "status": "PASS",
+    "ai_output": [
+      "User --> UC_Register",
+      "User --> UC_View_Books",
+      "User --> UC_Borrow_Book",
+      "User --> UC_Return_Book",
+      "User --> UC_Renew_Book",
+      "Librarian --> UC_Calculate_Late_Fee",
+      "UC_Renew_Book --> UC_Calculate_Late_Fee"
+    ],
+    "ground_truth": [
+      "User --> UC_Register",
+      "User --> UC_View_Books",
+      "User --> UC_Borrow_Book",
+      "User --> UC_Return_Book",
+      "User --> UC_Renew_Book",
+      "Librarian --> UC_Calculate_Late_Fee",
+      "UC_Renew_Book ..> UC_Calculate_Late_Fee : <<include>>"
+    ]
+  },
+  {
+    "id": "7",
+    "requirement": "Citizens in every district face the difficulty with the issuing of government ce",
+    "f1": 0.875,
+    "status": "PASS",
+    "ai_output": [
+      "Citizen --> UC_Login",
+      "Citizen --> UC_Register",
+      "Citizen --> UC_Apply_for_Certificate",
+      "Citizen --> UC_Manage_User_Profile",
+      "Admin --> UC_Issue_Certificate",
+      "Admin --> UC_View_User_Profile",
+      "Admin --> UC_Manage_User_Profile",
+      "UC_Deactivate_User --> UC_Manage_User_Profile"
+    ],
+    "ground_truth": [
+      "Citizen --> UC_Register",
+      "Citizen --> UC_Login",
+      "Citizen --> UC_Apply_for_Certificate",
+      "Citizen --> UC_Manage_User_Profile",
+      "Admin --> UC_Issue_Certificate",
+      "Admin --> UC_View_User_Profile",
+      "Admin --> UC_Manage_User_Profile",
+      "UC_Deactivate_User ..> UC_Manage_User_Profile : <<extend>>"
+    ]
+  },
+  {
+    "id": "8",
+    "requirement": "The Online Banking System is a web-based application that allows customers to pe",
+    "f1": 0.778,
+    "status": "PASS",
+    "ai_output": [
+      "Customer --> UC_Register",
+      "Customer --> UC_Manage_Account",
+      "Customer --> UC_Transfer_Funds",
+      "Customer --> UC_Pay_Bills",
+      "Customer --> UC_View_Transaction_History",
+      "Customer --> UC_Contact_Support",
+      "Customer Support --> UC_Provide_Support",
+      "UC_Contact_Support --> UC_Provide_Support",
+      "UC_Pay_Bills --> UC_Transfer_Funds"
+    ],
+    "ground_truth": [
+      "Customer --> UC_Register",
+      "Customer --> UC_Manage_Account",
+      "Customer --> UC_Transfer_Funds",
+      "Customer --> UC_Pay_Bills",
+      "Customer --> UC_View_Transaction_History",
+      "Customer --> UC_Contact_Support",
+      "Customer Support --> UC_Provide_Support",
+      "UC_Contact_Support ..> UC_Provide_Support : <<include>>",
+      "UC_Pay_Bills ..> UC_Transfer_Funds : <<extend>>"
+    ]
+  },
+  {
+    "id": "9",
+    "requirement": "Give me usecase diagram for this. Maintaining the authentic documents physically",
+    "f1": 1.0,
+    "status": "PASS",
+    "ai_output": [
+      "Citizen --> UC_Register",
+      "Citizen --> UC_Login",
+      "Citizen --> UC_Upload_Document",
+      "Citizen --> UC_View_Profile",
+      "Requester (Eg: UPSC) --> UC_Request_Document",
+      "Requester (Eg: UPSC) --> UC_Login",
+      "Issuer (Eg: Income Tax Department) --> UC_Login",
+      "Issuer (Eg: Income Tax Department) --> UC_Issue_Document"
+    ],
+    "ground_truth": [
+      "Citizen --> UC_Register",
+      "Citizen --> UC_Login",
+      "Citizen --> UC_Upload_Document",
+      "Citizen --> UC_View_Profile",
+      "Requester (Eg: UPSC) --> UC_Request_Document",
+      "Requester (Eg: UPSC) --> UC_Login",
+      "Issuer (Eg: Income Tax Department) --> UC_Login",
+      "Issuer (Eg: Income Tax Department) --> UC_Issue_Document"
+    ]
+  }
+]

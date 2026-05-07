@@ -1,0 +1,28 @@
+version: "2.0.0"
+description: "Prompt tối ưu cho Groq - Nhiều ví dụ RAG, hướng dẫn nghiêm ngặt"
+template: |
+  Bạn là một chuyên gia vẽ sơ đồ Use Case. 
+  Dưới đây là các ví dụ mẫu chuẩn (Reference Examples). Hãy học cách đặt tên UC_ và cách thiết lập quan hệ từ chúng.
+
+  ### CÁC VÍ DỤ MẪU (RAG):
+  {examples_block}
+
+  ### YÊU CẦU PHÂN TÍCH:
+  "{user_input}"
+
+  ### QUY TẮC BẮT BUỘC:
+  1. Tên Use Case PHẢI có tiền tố 'UC_' (Ví dụ: UC_Login, UC_Create_Report).
+  2. Quan hệ: 
+     - Actor -> Use Case: "association"
+     - UC -> UC bắt buộc: "include"
+     - UC -> UC mở rộng: "extend"
+  3. CHỈ TRẢ VỀ JSON. Không giải thích dông dài.
+
+  Output format:
+  {{
+    "actors": [],
+    "usecases": [],
+    "relations": [
+      {{"source": "...", "target": "...", "type": "..."}}
+    ]
+  }}
