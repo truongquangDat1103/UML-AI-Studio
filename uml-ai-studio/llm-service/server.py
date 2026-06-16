@@ -18,22 +18,25 @@ import uvicorn
 extractor = None
 rules = None
 spec_builder = None
+xmi_parser = None       # Module parse XMI → PlantUML (colab_uml)
 _ready = False          # True khi model đã load xong
 _init_error: str = ""   # Lưu lỗi nếu init thất bại
 
 
 def _load_models():
     """Chạy trong background thread để tránh block FastAPI startup."""
-    global extractor, rules, spec_builder, _ready, _init_error
+    global extractor, rules, spec_builder, xmi_parser, _ready, _init_error
     try:
         print("[Server] Bắt đầu load models (background)...")
         from ai_model.core_extractor import CoreExtractor
         from ai_model.rule_engine import RuleEngine
         from ai_model.srs_builder import SRSBuilder
+        import ai_model.xmi_parser as _xmi_parser
 
         extractor = CoreExtractor()
         rules = RuleEngine()
         spec_builder = SRSBuilder()
+        xmi_parser = _xmi_parser
         _ready = True
         print("[Server] ✅ Models loaded — server sẵn sàng!")
     except Exception as e:
@@ -65,6 +68,7 @@ app.add_middleware(
 # ── Request models ────────────────────────────────────────────────────────────
 class RequirementRequest(BaseModel):
     text: str
+    model: str | None = None  # Tuỳ chọn: "gemini", "groq", "local_llama"
 
 
 class GenerateSpecRequest(BaseModel):
@@ -109,17 +113,42 @@ async def analyze_requirement(request: RequirementRequest):
         raise HTTPException(status_code=400, detail="Nội dung yêu cầu không được để trống")
 
     try:
-        raw_ai_output, latency = extractor.call_ai(request.text)
+        raw_ai_output, latency = extractor.call_ai(request.text, preferred_model=request.model)
 
         if not raw_ai_output:
             raise HTTPException(status_code=500, detail="AI không phản hồi hoặc gặp lỗi")
 
+        # ── colab_uml trả về XMI → parse sang PlantUML ──────────────────────
+        model_used = (request.model or "").lower()
+        if model_used == "colab_uml" and xmi_parser and xmi_parser.is_xmi(raw_ai_output):
+            plantuml_code, diagram_type = xmi_parser.xmi_to_plantuml(raw_ai_output)
+
+            if not plantuml_code:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"[XMIParser] Không thể parse XMI sang PlantUML. "
+                           f"Loại sơ đồ nhận diện: {diagram_type}. "
+                           f"Raw output (100 chars): {raw_ai_output[:100]}"
+                )
+
+            return {
+                "status": "success",
+                "model_used": extractor.current_model_name,
+                "latency_seconds": latency,
+                "output_type": "plantuml",   # ← flag cho backend Node.js biết
+                "diagram_type": diagram_type,
+                "plantuml_code": plantuml_code,
+                "data": None,
+            }
+
+        # ── Các model khác trả JSON → xử lý bình thường ─────────────────────
         cleaned_data = rules.clean_and_parse(raw_ai_output)
 
         return {
             "status": "success",
             "model_used": extractor.current_model_name,
             "latency_seconds": latency,
+            "output_type": "json",
             "data": cleaned_data,
         }
     except HTTPException:
@@ -145,9 +174,6 @@ async def generate_spec(request: GenerateSpecRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
 # ── Entry point ───────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

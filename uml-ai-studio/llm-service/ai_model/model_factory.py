@@ -1,6 +1,7 @@
 from .strategies.gemini_strategy import GeminiStrategy
 from .strategies.groq_strategy import GroqStrategy
 from .strategies.local_llama_strategy import LocalLlamaStrategy
+from .strategies.colab_gguf_strategy import ColabGGUFStrategy
 
 class ModelFactory:
     _instances = {}
@@ -8,6 +9,7 @@ class ModelFactory:
         "gemini": GeminiStrategy,
         "groq": GroqStrategy,
         "local_llama": LocalLlamaStrategy,
+        "colab_uml": ColabGGUFStrategy,  # gpt-oss-20b chạy trên Google Colab
     }
 
     @staticmethod

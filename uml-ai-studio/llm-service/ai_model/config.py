@@ -18,6 +18,10 @@ class Config:
     OLLAMA_API_URL: str = os.getenv("OLLAMA_API_URL", "http://localhost:11434/api/generate")
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL", "llama3")
 
+    # --- Colab GGUF (gpt-oss-20b-UML-Generator chạy trên Google Colab qua ngrok) ---
+    COLAB_API_URL: str = os.getenv("COLAB_API_URL", "")  # VD: https://abc123.ngrok.io
+    TIMEOUT_COLAB: int = 120  # Timeout cao hơn vì inference GGUF chậm hơn cloud API
+
     # --- RAG & DB ---
     # Dùng tên model HuggingFace trực tiếp (tự cache lần đầu chạy)
     # Nếu đã download local thì ưu tiên dùng local
@@ -33,6 +37,6 @@ class Config:
     TOP_K_RAG: int = 3
 
     # --- STRATEGY ---
-    AI_STRATEGY_ORDER: list[str] = ["groq", "gemini", "local_llama"]
+    AI_STRATEGY_ORDER: list[str] = ["groq", "gemini", "local_llama", "colab_uml"]
     TIMEOUT_CLOUD: int = 30
     TIMEOUT_LOCAL: int = 45

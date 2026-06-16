@@ -10,6 +10,7 @@ const generateSchema = z.object({
         role: z.enum(['user', 'assistant']),
         content: z.string(),
     })).optional(),
+    model: z.string().optional(),  // 'gemini' | 'groq' | 'local_llama' | 'claude' | 'colab_uml'
 })
 
 export async function generate(req: Request, res: Response, next: NextFunction) {
@@ -26,6 +27,7 @@ export async function generate(req: Request, res: Response, next: NextFunction) 
                 input: data.input,
                 diagramType: data.diagramType,
                 conversationHistory: data.conversationHistory,
+                model: data.model,
             },
             (chunk) => {
                 res.write(`data: ${JSON.stringify({ type: 'chunk', text: chunk })}\n\n`)
@@ -76,6 +78,7 @@ export async function refine(req: Request, res: Response, next: NextFunction) {
                 input: data.input,
                 diagramType: data.diagramType,
                 conversationHistory: data.conversationHistory,
+                model: data.model,
             },
             (chunk) => {
                 res.write(`data: ${JSON.stringify({ type: 'chunk', text: chunk })}\n\n`)

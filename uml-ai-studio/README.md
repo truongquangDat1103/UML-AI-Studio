@@ -65,12 +65,3 @@ uml-ai-studio/
 │   └── prisma/          (schema.prisma, seed.ts)
 └── docker-compose.yml
 ```
-
-## ✨ Features
-
-- **AI-powered diagram generation** with Claude API (Use Case + Class)
-- **3-column editor** with streaming chat, live Mermaid render, AI explanation
-- **Project management** with search, filter, CRUD
-- **Admin panel** (8 pages): users, AI config, templates, stats, audit, quota, backup
-- **Glassmorphism dark UI** with Framer Motion animations
-- **JWT auth** with role-based access (admin/user)

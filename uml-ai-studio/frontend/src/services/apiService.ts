@@ -6,6 +6,7 @@ interface GenerateParams {
     input: string
     diagramType: 'USECASE' | 'CLASS'
     conversationHistory?: { role: 'user' | 'assistant'; content: string }[]
+    model?: string  // 'gemini' | 'groq' | 'local_llama' | 'claude'
 }
 
 interface AIResult {

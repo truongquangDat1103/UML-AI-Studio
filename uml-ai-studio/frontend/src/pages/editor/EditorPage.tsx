@@ -1,20 +1,32 @@
 import { useState, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, ZoomIn, ZoomOut, Maximize2, Copy, Save, Trash2, Lightbulb, Send, RefreshCw } from 'lucide-react'
+import { Sparkles, ZoomIn, ZoomOut, Maximize2, Copy, Save, Trash2, Lightbulb, Send, RefreshCw, ChevronUp, Plus } from 'lucide-react'
 import { useDiagramStore } from '@/stores/diagramStore'
 import { generateDiagramAPI, projectsAPI } from '@/services/apiService'
 import MermaidRenderer from '@/components/diagrams/MermaidRenderer'
 import PlantUMLRenderer from '@/components/diagrams/PlantUMLRenderer'
 import toast from 'react-hot-toast'
-import type { DiagramType } from '@/types'
+
 
 export default function EditorPage() {
   const { projectId } = useParams()
   const [input, setInput] = useState('')
   const [refineInput, setRefineInput] = useState('')
+  const [selectedModel, setSelectedModel] = useState<string>('gemini')
+  const [modelDropdownOpen, setModelDropdownOpen] = useState(false)
   const chatEndRef = useRef<HTMLDivElement>(null)
   const font = "'Inter', sans-serif"
+
+  const MODELS = [
+    { key: 'gemini', label: 'Gemini 2.5 Flash', emoji: '✨', color: '#2563EB' },
+    { key: 'groq', label: 'Groq / Llama 3.3', emoji: '⚡', color: '#7C3AED' },
+    { key: 'local_llama', label: 'Ollama (Local)', emoji: '🦙', color: '#059669' },
+    { key: 'claude', label: 'Claude (Anthropic)', emoji: '🧠', color: '#D97706' },
+    { key: 'colab_uml', label: 'UML Generator (Colab)', emoji: '🎯', color: '#DC2626' },
+  ] as const
+
+  const currentModel = MODELS.find(m => m.key === selectedModel) ?? MODELS[0]
 
   const {
     diagramType, setDiagramType, mermaidCode, setMermaidCode,
@@ -47,7 +59,12 @@ export default function EditorPage() {
     setIsGenerating(true); setStreamingText('')
     try {
       const result = await generateDiagramAPI(
-        { input: text, diagramType: diagramType.toUpperCase() as 'USECASE' | 'CLASS', conversationHistory: messages.map(m => ({ role: m.role, content: m.content })) },
+        {
+          input: text,
+          diagramType: diagramType.toUpperCase() as 'USECASE' | 'CLASS',
+          conversationHistory: messages.map(m => ({ role: m.role, content: m.content })),
+          model: selectedModel,
+        },
         (chunk) => appendStreamingText(chunk),
       )
       setMermaidCode(result.mermaidCode)
@@ -91,52 +108,107 @@ export default function EditorPage() {
       {/* ===== CHAT PANEL ===== */}
       <motion.div initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} style={{ width: 300, flexShrink: 0, ...panelStyle }}>
 
-        {/* Type switch */}
+        {/* Type label */}
         <div style={{ padding: '12px 12px 0', flexShrink: 0 }}>
-          <div style={{ display: 'flex', backgroundColor: '#F3F4F6', borderRadius: 12, padding: 4 }}>
-            {(['usecase', 'class'] as DiagramType[]).map(type => (
-              <button key={type} onClick={() => setDiagramType(type)} style={{
-                flex: 1, padding: '8px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 12,
-                fontWeight: 700, fontFamily: font, transition: 'all 0.15s',
-                backgroundColor: diagramType === type ? 'white' : 'transparent',
-                color: diagramType === type ? '#6B4FDB' : '#9CA3AF',
-                boxShadow: diagramType === type ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-              }}>
-                {type === 'usecase' ? '📐 Use Case' : '📦 Class'}
-              </button>
-            ))}
+          <div style={{ display: 'flex', backgroundColor: '#EAE8F5', borderRadius: 12, padding: '8px 12px', alignItems: 'center', gap: 6 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#6B4FDB', fontFamily: font }}>Use Case Diagram</span>
           </div>
         </div>
 
-        {/* Input */}
-        <div style={{ padding: '12px', flexShrink: 0 }}>
+        {/* Input area - Cursor style */}
+        <div style={{ padding: '10px 12px 12px', flexShrink: 0, position: 'relative' }}>
+          <AnimatePresence>
+            {modelDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.12 }}
+                style={{
+                  position: 'absolute', top: 'calc(100% - 1px)', left: 12, right: 12,
+                  backgroundColor: 'white', borderRadius: '0 0 12px 12px', zIndex: 50,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+                  border: '1.5px solid #E5E7EB', borderTop: 'none', overflow: 'hidden',
+                }}
+              >
+                {MODELS.map(m => (
+                  <button key={m.key} onClick={() => { setSelectedModel(m.key); setModelDropdownOpen(false) }}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                      padding: '9px 14px', border: 'none', cursor: 'pointer',
+                      backgroundColor: selectedModel === m.key ? '#F0EDFD' : 'transparent',
+                      transition: 'background 0.1s', fontFamily: font, textAlign: 'left',
+                    }}
+                    onMouseEnter={e => { if (selectedModel !== m.key) (e.currentTarget as HTMLElement).style.backgroundColor = '#F9FAFB' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = selectedModel === m.key ? '#F0EDFD' : 'transparent' }}
+                  >
+                    <span style={{ fontSize: 13, fontWeight: 600, color: selectedModel === m.key ? '#6B4FDB' : '#374151' }}>{m.label}</span>
+                    {selectedModel === m.key && <span style={{ marginLeft: 'auto', width: 6, height: 6, borderRadius: '50%', backgroundColor: '#6B4FDB', flexShrink: 0 }} />}
+                  </button>
+                ))}
+                <div style={{ height: 4 }} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <textarea
             value={input} onChange={e => setInput(e.target.value)}
-            onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter') { doGenerate(input); setInput('') } }}
-            placeholder="Mô tả hệ thống... (Ctrl+Enter)" rows={4} disabled={isGenerating}
+            onKeyDown={e => { if (e.ctrlKey && e.key === 'Enter' && input.trim()) { doGenerate(input); setInput('') } }}
+            placeholder="Mô tả hệ thống... (Ctrl+Enter để gửi)" rows={4} disabled={isGenerating}
             style={{
               width: '100%', backgroundColor: '#F9FAFB', border: '1.5px solid #E5E7EB',
-              borderRadius: 12, padding: '10px 12px', fontSize: 13, color: '#111827',
+              borderRadius: '12px 12px 0 0', padding: '10px 12px', fontSize: 13, color: '#111827',
               outline: 'none', resize: 'none', fontFamily: font, boxSizing: 'border-box',
-              transition: 'all 0.15s', lineHeight: 1.5,
+              lineHeight: 1.5, borderBottom: 'none', display: 'block',
             }}
-            onFocus={e => { e.target.style.borderColor = '#6B4FDB'; e.target.style.boxShadow = '0 0 0 3px rgba(107,79,219,0.1)' }}
-            onBlur={e => { e.target.style.borderColor = '#E5E7EB'; e.target.style.boxShadow = 'none' }}
+            onFocus={e => { e.target.style.borderColor = '#6B4FDB' }}
+            onBlur={e => { e.target.style.borderColor = '#E5E7EB' }}
           />
-          <button
-            onClick={() => { doGenerate(input); setInput('') }}
-            disabled={isGenerating || !input.trim()}
-            style={{
-              ...pillBtn('#6B4FDB', 'white', isGenerating || !input.trim()),
-              width: '100%', marginTop: 8, padding: '11px 0',
-              justifyContent: 'center', boxShadow: '0 4px 12px rgba(107,79,219,0.25)',
-            }}
-          >
-            {isGenerating
-              ? <><div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', animation: 'spin 0.6s linear infinite' }} /> Đang xử lý...</>
-              : <><Sparkles size={15} /> Phân tích & Sinh sơ đồ</>
-            }
-          </button>
+
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            backgroundColor: '#F9FAFB', border: '1.5px solid #E5E7EB', borderTop: '1px solid #E5E7EB',
+            borderRadius: '0 0 12px 12px', padding: '5px 7px',
+          }}>
+            <button style={{
+              width: 28, height: 28, borderRadius: 8, border: '1.5px solid #E5E7EB',
+              backgroundColor: 'white', cursor: 'pointer', color: '#9CA3AF',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <Plus size={14} />
+            </button>
+
+            <button
+              onClick={() => setModelDropdownOpen(v => !v)}
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', gap: 5,
+                padding: '4px 6px', borderRadius: 8, border: 'none',
+                backgroundColor: 'transparent', cursor: 'pointer', fontFamily: font, minWidth: 0,
+              }}
+            >
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{currentModel.label}</span>
+              <ChevronUp size={12} color="#9CA3AF" style={{ flexShrink: 0, transform: modelDropdownOpen ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.2s' }} />
+            </button>
+
+            <button
+              onClick={() => { if (input.trim() && !isGenerating) { doGenerate(input); setInput('') } }}
+              disabled={isGenerating || !input.trim()}
+              style={{
+                width: 32, height: 32, borderRadius: 9, border: 'none', flexShrink: 0,
+                backgroundColor: (isGenerating || !input.trim()) ? '#E5E7EB' : '#6B4FDB',
+                color: (isGenerating || !input.trim()) ? '#9CA3AF' : 'white',
+                cursor: (isGenerating || !input.trim()) ? 'not-allowed' : 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s',
+                boxShadow: (!isGenerating && input.trim()) ? '0 2px 8px rgba(107,79,219,0.35)' : 'none',
+              }}
+            >
+              {isGenerating
+                ? <div style={{ width: 13, height: 13, borderRadius: '50%', border: '2px solid #ccc', borderTopColor: '#6B4FDB', animation: 'spin 0.6s linear infinite' }} />
+                : <Send size={14} />
+              }
+            </button>
+          </div>
         </div>
 
         {/* Chat messages */}
@@ -217,7 +289,7 @@ export default function EditorPage() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ backgroundColor: '#EAE8F5', color: '#6B4FDB', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 9999 }}>
-              {diagramType === 'usecase' ? 'USE CASE' : 'CLASS'}
+              USE CASE
             </span>
             <input
               value={projectTitle} onChange={e => setProjectTitle(e.target.value)}
@@ -360,6 +432,7 @@ export default function EditorPage() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+        .model-btn:hover { background-color: rgba(255,255,255,0.06) !important; }
       `}</style>
     </div>
   )

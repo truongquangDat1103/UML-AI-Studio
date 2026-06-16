@@ -7,17 +7,18 @@ interface GenerateParams {
     input: string
     diagramType: 'USECASE' | 'CLASS'
     conversationHistory?: { role: 'user' | 'assistant'; content: string }[]
+    model?: string  // 'gemini' | 'groq' | 'local_llama' | 'claude' | 'colab_uml'
 }
 
 // ─── LLM Microservice (Python/FastAPI) ─────────────────────────────────────────
 const LLM_SERVICE_URL = process.env.LLM_SERVICE_URL || 'http://localhost:8000'
-const LLM_SERVICE_TIMEOUT_MS = 60_000 // 60s (RAG + inference có thể chậm)
+const LLM_SERVICE_TIMEOUT_MS = 150_000 // 150s — Colab inference có thể mất 1-2 phút
 
 /**
  * Gọi LLM microservice (Python FastAPI) để sinh Use Case diagram.
  * Trả về Mermaid code sau khi convert.
  */
-async function callLlmService(userInput: string): Promise<{
+async function callLlmService(userInput: string, model?: string): Promise<{
     mermaidCode: string
     plantUmlCode: string
     explanation: string
@@ -32,7 +33,7 @@ async function callLlmService(userInput: string): Promise<{
         const resp = await fetch(`${LLM_SERVICE_URL}/analyze`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: userInput }),
+            body: JSON.stringify({ text: userInput, model: model || null }),
             signal: controller.signal,
         })
 
@@ -43,26 +44,47 @@ async function callLlmService(userInput: string): Promise<{
 
         const json = await resp.json() as {
             status: string
+            output_type?: 'json' | 'plantuml'  // 'plantuml' khi colab_uml sinh XMI → parse
+            plantuml_code?: string              // chỉ có khi output_type='plantuml'
+            diagram_type?: string              // 'usecase' | 'class'
             data: {
                 actors?: string[]
                 usecases?: string[]
                 relations?: Array<{
-                    // LLM Service dùng source/target
                     source?: string
                     target?: string
-                    // fallback compatibility
                     from?: string
                     to?: string
                     type?: string
                     label?: string
                 }>
                 title?: string
-            }
+            } | null
             model_used?: string
             latency_seconds?: number
         }
 
-        if (json.status !== 'success' || !json.data) {
+        if (json.status !== 'success') {
+            throw new Error('LLM Service trả về dữ liệu không hợp lệ')
+        }
+
+        // ── colab_uml: XMI → PlantUML ──────────────────────────────────
+        if (json.output_type === 'plantuml' && json.plantuml_code) {
+            return {
+                mermaidCode: '',          // không cần, frontend dùng PlantUMLRenderer
+                plantUmlCode: json.plantuml_code,
+                explanation: `Đã sinh ${json.diagram_type ?? 'Use Case'} Diagram bằng gpt-oss-20b-UML-Generator (Colab).`,
+                suggestions: [
+                    'Model chuyên biệt UML — output PlantUML native từ XMI',
+                    `Model: ${json.model_used ?? 'colab_uml'} | Latency: ${json.latency_seconds?.toFixed(1) ?? '?'}s`,
+                ],
+                model_used: json.model_used,
+                latency_seconds: json.latency_seconds,
+            }
+        }
+
+        // ── Các model khác: JSON output ───────────────────────────────────
+        if (!json.data) {
             throw new Error('LLM Service trả về dữ liệu không hợp lệ')
         }
 
@@ -108,20 +130,21 @@ export async function generateDiagram(params: GenerateParams, onChunk?: (text: s
     const config = await prisma.aIConfig.findUnique({ where: { id: 'singleton' } })
 
     // ── USECASE: Ưu tiên dùng LLM Service (Python) ──────────────────────────────
-    if (params.diagramType === 'USECASE') {
+    const chosenModel = params.model?.toLowerCase()
+    const useClaudeDirect = chosenModel === 'claude' || params.diagramType === 'CLASS'
+
+    if (!useClaudeDirect) {
         const llmHealthy = await checkLlmServiceHealth()
 
         if (llmHealthy) {
-            console.log('[AI] Routing to LLM microservice (Python/FastAPI)...')
+            console.log(`[AI] Routing to LLM microservice (Python/FastAPI) — model: ${chosenModel || 'auto'}...`)
             try {
-                const result = await callLlmService(params.input)
+                const result = await callLlmService(params.input, chosenModel)
                 console.log(`[AI] LLM service OK — model: ${result.model_used}, latency: ${result.latency_seconds?.toFixed(2)}s`)
-                // Emit toàn bộ mermaid code như một chunk duy nhất (streaming simulation)
                 onChunk?.(JSON.stringify(result))
                 return result
             } catch (llmErr) {
                 console.warn('[AI] LLM service thất bại, fallback sang Claude:', llmErr)
-                // Tiếp tục xuống Claude nếu LLM service lỗi
             }
         } else {
             console.log('[AI] LLM service không khả dụng, dùng Claude...')

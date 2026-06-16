@@ -64,17 +64,47 @@ class CoreExtractor:
         strategy = ModelFactory.get_strategy(strategy_name)
         return strategy.generate(correction_prompt)
 
-    def call_ai(self, user_input: str) -> tuple[str, float]:
-
+    def call_ai(self, user_input: str, preferred_model: str | None = None) -> tuple[str, float]:
             """
             Thực thi pipeline gọi AI.
-            use_rag: True (Mặc định) -> Tìm kiếm ví dụ mẫu; False -> Chỉ dùng prompt thô.
+            preferred_model: Nếu được chỉ định, sẽ dùng đúng model đó (không fallback).
+            Nếu None, sẽ dùng AI_STRATEGY_ORDER để tự động fallback.
             """
             use_rag = RAG_ALLOW
             self.last_call_latency = 0.0
             self.last_self_corrected = False
             self.last_error = ""
 
+            # --- Chế độ: dùng model được chỉ định ---
+            if preferred_model:
+                strategy_name = preferred_model.lower()
+                if strategy_name not in ["gemini", "groq", "local_llama", "colab_uml"]:
+                    raise ValueError(f"Model '{preferred_model}' không được hỗ trợ. Chọn: gemini, groq, local_llama, colab_uml")
+                model_start_ts = time.time()
+                try:
+                    prompt_version = "v1" if strategy_name == "gemini" else "v2"
+                    top_k = 2 if strategy_name == "gemini" else 5
+                    docs, metas = [], []
+                    if use_rag:
+                        try:
+                            docs, metas = self.rag_manager.get_context(user_input, limit=top_k)
+                        except Exception as rag_err:
+                            print(f"⚠️ [RAG Error]: {rag_err}")
+                    prompt = PromptFactory.build_final_prompt(user_input, docs, metas, version=prompt_version)
+                    print(f"[Extractor] Dùng model chỉ định: {strategy_name}")
+                    strategy = ModelFactory.get_strategy(strategy_name)
+                    result = strategy.generate(prompt)
+                    if not result or not result.strip():
+                        raise Exception("Empty result")
+                    actual_latency = round(time.time() - model_start_ts, 3)
+                    self.current_model_name = strategy_name
+                    self.last_call_latency = actual_latency
+                    return result, actual_latency
+                except Exception as e:
+                    self.last_error = str(e)
+                    raise Exception(f"Model '{strategy_name}' thất bại: {e}")
+
+            # --- Chế độ: tự động fallback theo AI_STRATEGY_ORDER ---
             for strategy_name in Config.AI_STRATEGY_ORDER:
                 if self._is_open(strategy_name):
                     continue
